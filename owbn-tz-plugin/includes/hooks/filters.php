@@ -61,6 +61,8 @@ function owbn_tz_filter_comment_time($time, $format, $gmt, $translate, $comment)
 // and cases where viewer TZ matches site TZ.
 
 function owbn_tz_should_shift_display() {
+    // Anon visitors share the page cache — never shift their output.
+    if (!is_user_logged_in()) return false;
     if (is_admin() && !wp_doing_ajax()) return false;
     if (function_exists('wp_doing_cron') && wp_doing_cron()) return false;
     if (defined('WP_CLI') && WP_CLI) return false;

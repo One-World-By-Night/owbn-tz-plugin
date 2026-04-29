@@ -20,10 +20,15 @@ function owbn_tz_get_visitor_timezone() {
 }
 
 function owbn_tz_get_timezone_string() {
-    $tz = owbn_tz_get_user_timezone();
-    if ($tz) return $tz;
-    $tz = owbn_tz_get_visitor_timezone();
-    if ($tz) return $tz;
+    // Only resolve viewer-specific TZ for logged-in users. Anonymous visitors
+    // always get site TZ so page caches (WPSC, SG edge) stay coherent — anon
+    // requests with arbitrary owbn_tz cookies must not vary cached HTML.
+    if (is_user_logged_in()) {
+        $tz = owbn_tz_get_user_timezone();
+        if ($tz) return $tz;
+        $tz = owbn_tz_get_visitor_timezone();
+        if ($tz) return $tz;
+    }
     $site = wp_timezone_string();
     return $site ?: 'UTC';
 }
