@@ -37,6 +37,50 @@ function owbn_tz_get_timezone() {
     return new DateTimeZone(owbn_tz_get_timezone_string());
 }
 
+function owbn_tz_common_zones() {
+    return [
+        'America/New_York'    => 'Eastern',
+        'America/Chicago'     => 'Central',
+        'America/Denver'      => 'Mountain',
+        'America/Phoenix'     => 'Mountain — no DST (Arizona)',
+        'America/Los_Angeles' => 'Pacific',
+        'America/Anchorage'   => 'Alaska',
+        'Pacific/Honolulu'    => 'Hawaii',
+        'America/Halifax'     => 'Atlantic — Canada',
+        'America/St_Johns'    => 'Newfoundland',
+        'America/Sao_Paulo'   => 'Brazil — São Paulo',
+        'America/Manaus'      => 'Brazil — Manaus',
+        'America/Fortaleza'   => 'Brazil — Fortaleza',
+    ];
+}
+
+function owbn_tz_render_choices($current, $locale = '') {
+    $common = owbn_tz_common_zones();
+    $current_in_common = is_string($current) && $current !== '' && array_key_exists($current, $common);
+
+    $out = '<optgroup label="' . esc_attr__('Common (US / Canada / Brazil)', OWBN_TZ_TEXT_DOMAIN) . '">';
+    $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+    foreach ($common as $tz => $label) {
+        try {
+            $local = $now->setTimezone(new DateTimeZone($tz));
+            $display = sprintf('%s — %s (UTC%s)', $label, $local->format('T'), $local->format('P'));
+        } catch (Exception $e) {
+            $display = $label;
+        }
+        $out .= sprintf(
+            '<option value="%s"%s>%s</option>',
+            esc_attr($tz),
+            selected($current, $tz, false),
+            esc_html($display)
+        );
+    }
+    $out .= '</optgroup>';
+    // If current is in Common, suppress wp_timezone_choice's duplicate selected
+    // marker so the collapsed dropdown shows our friendly label.
+    $out .= wp_timezone_choice($current_in_common ? '' : $current, $locale);
+    return $out;
+}
+
 function owbn_tz_format($input, $format = '') {
     if ($format === '') {
         $format = get_option('date_format') . ' ' . get_option('time_format');

@@ -15,7 +15,7 @@ function owbn_tz_render_profile_field($user) {
             <td>
                 <select name="owbn_tz" id="owbn_tz">
                     <option value=""><?php esc_html_e('— Auto-detect from browser —', OWBN_TZ_TEXT_DOMAIN); ?></option>
-                    <?php echo wp_timezone_choice($current, get_user_locale($user->ID)); ?>
+                    <?php echo owbn_tz_render_choices($current, get_user_locale($user->ID)); ?>
                 </select>
                 <p class="description">
                     <?php esc_html_e('All dates and times shown to you across the site will use this timezone. Leave blank to auto-detect from the browser.', OWBN_TZ_TEXT_DOMAIN); ?>
